@@ -6,6 +6,7 @@ In this repo, there are the codes, files and data sets of the courses, case stud
 - Encoding,
 - Machine Learning Fundamentals,
 - Supervised Learning and Unsupervised Learning topics.
+
 The explanations in the codes are written in Turkish and coded with Python language.
 
 
