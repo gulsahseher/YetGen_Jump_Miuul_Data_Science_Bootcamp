@@ -1,0 +1,28 @@
+- Sütundaki NaN olmayan her bir unique değerin kaç kez kullanıldığını gösteren bir seri döndüren method:
+df[].value_counts
+
+- Her bir sütuna ait olan eşsiz unique değerlerin sayısını veren method:
+df.nunique()
+
+- Değişkenlerin unique değerlerinin sayısını veren method:
+df[].unique()
+
+- Değişken tipinin kontrol edilmesi için kullanılan method:
+df[].dtype
+
+- Değişken tipini başka bir değişken tipine çevirmek için kullanılan method:
+df[].astype()
+
+- Her bir değişkendeki boş değerlerin sayısını bulmak için kullanılan method:
+df.isnull().sum()
+
+- Değişkenleri dataframeden silmek için kullanılan method:
+df.drop()
+
+- Boş değişken değerlerini doldurmak için kullanılan method:
+df[].fillna()
+
+- Değişkenleri sıralamak için:
+df.sort_values()
+
+
