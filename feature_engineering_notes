@@ -1,0 +1,96 @@
+FEATURE ENGINEERING & DATA PRE-PROCESSING
+
+- Outliers (Aykırı Değerler)
+- Missing Values (Eksik Değerler)
+- Encoding
+- Feature Scaling (Özellik Ölçeklendirme)
+- Feature Exraction (Özellik Çıkarımı)
+- Feature Interactions (Özellik Etkileşimleri)
+- End-to-End Application (Uçtan Uca Uygulama)
+
+Özellik Mühendisliği: Özellikler üzerinde gerçekleştirilen çalışmalar. Ham veriden değişken üretmek.
+Veri Ön İşleme: Çalışmalar öncesi verinin uygun hale getirilmesi sürecidir.
+
+1 - Outliers (Aykırı Değerler)
+
+Verideki genel eğilimin "oldukça" dışına çıkan değerlere aykırı değer (outliers) denir. Özellikle doğrusal problemlerde aykırı değerin etkileri daha yüksektir.
+Ağaç yöntemlerinde bu etkiler daha düşüktür. Aykırı değerler göz önünde bulundurulması gereken değerlerdir.
+Aykırı değerler:
+1. Sektör Bilgisi
+2. Standart Sapma Yaklaşımı
+3. Z-Skoru Yaklaşımı
+4. Boxplot (interquartile range-IQR) Yöntemi
+ile belirlenir. Tek değişkenli yöntemler için tercih edilen yöntem boxplot yöntemidir. Çok değişkenli yöntemler için tercih edilen yöntem LOF yöntemidir.
+Yöntemlerde kabul edilebilir eşik değere göre verideki aykırı değerler belirlenir. Boxplot yöntemindeki aykırı değer,
+Q1: %25'lik çeyrek değer
+Q3: %75'lik çeyrek değer
+Interquartile range (IQR): Q3-Q1
+Üst sınır: Q3 + 1.5 x IQR
+Alt sınır: Q1 - 1.5 x IQR
+Veriseti içerisinde genellikle negatif değer yoksa alt sınır çalışmaz. Genelde üst sınıra göre çalışılır.
+
+Her zaman aykırı değerleri silmek en iyi yöntem değildir. Bazı durumlarda bir hücredeki aykırı değeri silmek diğer hücrelerdeki tam olan gözlemlerin de silinmesine sebep olur.
+Bu yüzden bazı senaryolarda silmek yerine bu değerleri "baskılamak" tercih edilir.
+
+Çok değişkenli aykırı değer: Tek başına aykırı olamayacak bazı değerlerin birlikte ele alındığında aykırılık yaratması durumudur. Çok değişkenli aykırı değerler için LOF yöntemi
+tercih edilmektedir. LOF, gözlemleri bulundukları konumda yoğunluk tabanlı skorlayarak buna göre aykırı olabilecek değerleri tanımaya yarar. Bir noktanın lokal yoğunluğu, ilgili noktanın
+etrafındaki komşuluklar demektir. Eğer bir nokta komşularının yoğunluğundan anlamlı bir şekilde düşükse bu nokta daha seyrek bir bölgededir diye düşünülür.
+1'den uzaklaştıkça ilgili gözlemin outlier olma ihtimali artar. LOF yöntemi threshold değeri ile de müdahale edilmesini sağlar.
+Elimizdeki  verisetinin içerdiği 100 tane değişken de olsa o 100 değişkenin büyük bir miktarını taşıdığını varsayılabileceğimiz 2 boyuta indirgeyebiliriz (örnek: 600px-LOF.svg.png).
+Bu da PCA (temel bileşen analizi) yöntemi ile yapılabilmektedir.
+Çok değişkenli aykırı değerlerde belirlenen thresholda göre çok fazla gözlem sayısı varsa bu değerleri baskılamak gürültüye sebep olur. Bu yüzden özellikle ağaç yöntemlerinin kullanıldığı
+senaryolarda baskılama yöntemi tercih edilmez. Genelde aykırı yöntemler verisetinde bırakılır. Ancak IQR  %95 - %5 veya %99 - %1 çeyreklerine göre hesaplanarak aykırı değerler çıkarılabilir.
+Az gözlem sayısı varsa bunlar verisetinden çıkarılabilir.
+
+2 - Missing Values (Eksik Değerler)
+
+Gözlemlerde eksiklik olması durumunu ifade etmektedir. Örneğin gözlemlerdeki bazı değerler NA olarak ifade edilmişse bu değerler eksik değerlerdir.
+Eksik değerler problemi:
+1 - Silme
+2 - Değer Atama Yöntemleri (Mod, medyan atama gibi)
+3 - Tahmine Dayalı Yöntemler (Makine öğrenmesi, istatiksel bazı yöntemler)
+ile çözülmeye çalışılır.
+Eksik veri ile çalışırken göz önünde bulundurulması gereken önemli konulardan birisi "eksik verinin rassallığı"dır. Çünkü bir değişkendeki eksiklik başka bir değişken etkisinde
+ortaya çıkabilmektedir. Bu da eksikliklerin giderilmesi konusunda bazı problemlere yol açabilmektedir.
+Ağaca dayalı yöntemlerde eksik değerlerin etkisi gözardı edilebilmektedir.
+
+Verisetindeki eksik veri yapıları bar, matris ve ısı haritası (heatmap) yapıları ile incelenebilir. Isı haritasında:
+- Korelasyonun 1'e yakın olması pozitif yönlü bir kuvvetli ilişkiyi ifade eder. Korelasyonun -1'e yakın olması da negatif yönlü bir kuvvetli ilişkiyi ifade eder.
+- Pozitif yönlü bir korelasyonda değişkenlerdeki eksiklerin birlikte olduğu düşünülür. Yani birisinde eksiklik varken diğerinde de eksiklik vardır denilebilir.
+- Negatif yönlü bir korelasyonda eksiklerin birbirinin zıttı olduğu düşünülür. Yani birisinde eksiklik varken diğerinde eksiklik yoktur denilebilir.
+
+3 - Encoding
+
+Değişkenlerin temsil şekillerinin değiştirilmesidir.
+
+1 - Label Encoding : Nominal kategorik değişkeni (sınıflar arasında fark yok ise, örn: gs-fb-bjk) label encodingden geçirmek sakıncalı olabilmektedir.
+2 - One Hot Encoding: Kategorik değişkenlerin sınıfları değişkenlere (dummy (kukla) değişken) dönüştürülür ve bu şekilde temsil edilir. Bu şekilde o gözlem birimi 1 diğer gözlem birimleri ise 0 ile temsil edilir.
+3 - Rare Encoding: Gereksiz birçok değişken oluşturmanın önüne geçmek ve bağımlı değişkene etkisi düşük olan gözlem sayısı çok düşük olan değişkenlerden uzaklaşmak olarak tanımlanabilir.
+                   Bu değişkenler belirli bir eşik (threshold) değere göre RARE değişkeni altında biraraya getirilir.
+
+Dummy değişken tuzağı : Eğer dummy değişkenler birbiri üzerinden oluşturulabilir olursa ortaya bir ölçme problemi çıkabilmektedir. Çünkü birbiri üzerinden oluşturulabilen
+değişkenler yüksek bir korelasyona sebep olacaktır. Bundan dolayı dummy değişken oluşturulurken ilk sınıf drop edilir yani silinir. Böylece birbiri üzerinden oluşturulma durumu
+ortadan kaldırılmaya çalışılır.
+
+4 - Feature Scaling (Özellik Ölçeklendirme)
+
+ - Amaçlardan birisi değişkenler arasındaki ölçüm farklılıklarını gidermektir.  Bu işlem ile tüm değişkenleri eşit şartlar altında değerlendirebilmek adına ölçeklendirilir.
+Kullanılacak olan modellerin değişkenlere eşit şartlar altında yaklaşmasını sağlamaya çalışmaktır.
+ - Diğer bir amaç ise gradient descent kullanan algoritmaların train(eğitim) sürelerini kısaltma durumudur. Çünkü değişkenler standartlaştırıldığı takdirde hataların iteratif olarak azaltılması
+yani minimum noktaya ulaşılması daha hızlı bir şekilde gerçekleşmektedir.
+ - Uzaklık temelli yöntemlerde büyük değerlere sahip değişkenler dominantlık sergilemektedir. KNN, k-Means, PCA uzaklık temelli yöntemler kullanıldığında ölçeklerin birbirinden farklı olma durumu
+ yapılacak olan yakınlık, benzerlik, benzemezlik hesaplamalarında yanlılığa sebep olmaktadır.
+
+5 - Feature Extraction (Özellik Çıkarımı)
+
+Ham veriden değişken üretmektir. Var olan bazı değişkenler üzerinden yeni değişkenler türetmektir. Türetme işlemi sırasında ayırt edicilik oluşturup oluşturmama durumuna bakılır.
+- Yapısal verilerden değişken türetmek
+- Yapısal olmayan verilerden değişken türetmek (metin, görüntü, ses)
+
+
+
+
+
+
+
+
