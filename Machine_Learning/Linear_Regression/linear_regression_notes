@@ -56,22 +56,22 @@ Burada tersini alma işlemi gözlem sayısı arttığında zorlaşmaktadır. Bu 
 
 Parametrelerin değerlerini iteratif bir şekilde değiştirerek çalışır.
 
-θ0 = θ0 - a * (1/m) * ∑(h0(x^(i)) - y^(i)) , (b0 = b = θ0)
-θ1 = θ1 - a * (1/m) * ∑(h0(x^(i)) - y^(i)).x^(i) , (b1 = w = θ1)
+θ0 = θ0 - a * (1/m) * ∑(hθ(x^(i)) - y^(i)) , (b0 = b = θ0)
+θ1 = θ1 - a * (1/m) * ∑(hθ(x^(i)) - y^(i)).x^(i) , (b1 = w = θ1)
 
 - Doğrusal Regresyon için Gradient Descent (Gradient Descent for Linear Regression)
 
 Makine öğrenmesinden bağımsız olarak bir optimizasyon yöntemidir. Amaç bir cost fonksiyonunu minimum yapabilecek parametre değerlerini bulmaktır.
 
-θj ← θj - (a * ∂J(θ) / ∂θi )
+θj ← θj - (a * ∂J(θ) / ∂θj )
 Bu türev işlemine göre güncelleme işlemi yapılır. Gradient descent, türev sonucunda elde edilen gradyanın negatifi olarak tanımlanan "en dik iniş" yönünde
 gidilerek ilgili parametre değerini günceller ve fonksiyonu minimum yapabilecek parametre değerine erişmeye çalışır.
 
-J(θ0,θ1) = (1/2*m) * ∑(h0(x^(i)) - y^(i))^2
+J(θ0,θ1) = (1/2*m) * ∑(hθ(x^(i)) - y^(i))^2
 minimize(J(θ0,θ1))
 
 h0(x^(i) = θ0 + θ1 * x^(i)
-θ0 = θ0 - a * (1/m) * ∑(h0(x^(i)) - y^(i)) , (b0 = b = θ0)
-θ1 = θ1 - a * (1/m) * ∑(h0(x^(i)) - y^(i)).x^(i) , (b1 = w = θ1)
+θ0 = θ0 - a * (1/m) * ∑(hθ(x^(i)) - y^(i)) , (b0 = b = θ0)
+θ1 = θ1 - a * (1/m) * ∑(hθ(x^(i)) - y^(i)).x^(i) , (b1 = w = θ1)
 
 Günün sonunda regresyon problemlerini çözmek için kullanacağımız modeller ağaca dayalı modeller olacaktır. Doğrusal regresyon modelleri olmayacaktır.
