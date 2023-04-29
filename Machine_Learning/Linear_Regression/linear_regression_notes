@@ -74,7 +74,7 @@ h0(x^(i) = θ0 + θ1 * x^(i)
 θ0 = θ0 - a * (1/m) * ∑(h0(x^(i)) - y^(i)) , (b0 = b = θ0)
 θ1 = θ1 - a * (1/m) * ∑(h0(x^(i)) - y^(i)).x^(i) , (b1 = w = θ1)
 
-Günün sonunda regresyon problemlerini çözmek için kullanacağımız modeller ağacı dayalı modeller olacaktır. Doğrusal regresyon modelleri olmayacaktır.
+Günün sonunda regresyon problemlerini çözmek için kullanacağımız modeller ağaca dayalı modeller olacaktır. Doğrusal regresyon modelleri olmayacaktır.
 
 
 
