@@ -1,0 +1,80 @@
+DOĞRUSAL REGRESYON (LINEAR REGRESSION)
+
+Amaç, bağımlı ve bağımsız değişken/değişkenler arasındaki ilişkiyi doğrusal olarak modellemektir.
+
+yi' = b + wxi (tek değişkenli)
+yi' = b + w1x1 + w2x2 + w3x3 + ... + wpxp  (çok değişkenli)
+
+b = β, bias, intercept
+w = katsayı, ağırlık, co-efficient, weight
+
+Gerçek değerler ile tahmin edilen değerler arasındaki farkların karelerinin toplamını/ortalamasını minimum yapabilecek
+b ve w değerlerini bularak,
+
+yi' = b + wxi
+MSE : Cost(b,w) = (1/2m)*∑((b+w*xi) - yi)^2  , i=(1,m)
+
+lineer eğrinin konulacağı yeri bulabiliriz.
+
+- Regresyon Modellerinde Başarı Değerlendirme (MSE, RMSE, MAE)
+
+MSE = (1/n)*∑(yi - yi')^2  , i=(1,n)
+Karesinin alınmasının sebebi ölçüm problemini ortadan kaldırmaktır.
+
+RMSE = sqrt((1/n)*∑(yi - yi')^2)  , i=(1,n)
+
+MAE = (1/n)*∑|yi - yi'|  , i=(1,n)
+
+Hataları gözlemlemek için 3 yöntem de kullanılabilir. Her bir hata değeri kendisi içinde düşürülmeye çalışılır.
+Ancak MAE daha düşük sonuç verdiği için MAE'nin kullanımayı tercih etmeliyiz gibi bir sonuca varılmamalıdır.
+
+- R-Kare (R-Squared)
+
+Verisetindeki bağımsız değişkenlerin bağımlı değişkeni açıklama yüzdesidir. Değişken sayısı arttıkça R-Kare değeri şişmeye meğillidir.
+Düzeltilmiş R-Kare değerinin göz önünde bulundurulması gerekir.
+
+- Parametrelerin Tahmin Edilmesi (Ağırlıkların, Katsayıların, Tahmincilerin Bulunması)
+
+MSE : Cost(b,w) = (1/2m)*∑((b+w*xi) - yi)^2  , i=(1,m)
+
+Amaç b ve w değerleri ile bu MSE ifadesini verecek en küçük ifadeyi bulabilmektir.
+
+1. Analitik Çözüm: Normal Denklemler Yöntemi (En Küçük Kareler Yöntemi)
+
+* Simple Linear Regression
+SSE : ∑(yi - yi')^2  , i=(1,n) = ∑(yi - (b0 + b1*xi))^2 , i=(1,n)
+ b1 = (∑(xi-mean(x))(yi - mean(yi))) / ∑(xi - mean(xi))^2 , i=(1,n) , , i=(1,n)
+ b0 = mean(y) - β1 * mean(x)
+
+* Multiple Linear Regression
+SSE : ∑(yi - yi')^2  , i=(1,n)
+  β = (X^T.X)^(-1) * X^T.Y , (X^T = X matrisinin transpozu)
+
+Burada tersini alma işlemi gözlem sayısı arttığında zorlaşmaktadır. Bu yüzden Gradient Descent yöntemi daha çok tercih edilmektedir.
+
+1. Optimizasyon Çözümü: Gradient Descent
+
+Parametrelerin değerlerini iteratif bir şekilde değiştirerek çalışır.
+
+θ0 = θ0 - a * (1/m) * ∑(h0(x^(i)) - y^(i)) , (b0 = b = θ0)
+θ1 = θ1 - a * (1/m) * ∑(h0(x^(i)) - y^(i)).x^(i) , (b1 = w = θ1)
+
+- Doğrusal Regresyon için Gradient Descent (Gradient Descent for Linear Regression)
+
+Makine öğrenmesinden bağımsız olarak bir optimizasyon yöntemidir. Amaç bir cost fonksiyonunu minimum yapabilecek parametre değerlerini bulmaktır.
+
+θj ← θj - (a * ∂J(θ) / ∂θi )
+Bu türev işlemine göre güncelleme işlemi yapılır. Gradient descent, türev sonucunda elde edilen gradyanın negatifi olarak tanımlanan "en dik iniş" yönünde
+gidilerek ilgili parametre değerini günceller ve fonksiyonu minimum yapabilecek parametre değerine erişmeye çalışır.
+
+J(θ0,θ1) = (1/2*m) * ∑(h0(x^(i)) - y^(i))^2
+minimize(J(θ0,θ1))
+
+h0(x^(i) = θ0 + θ1 * x^(i)
+θ0 = θ0 - a * (1/m) * ∑(h0(x^(i)) - y^(i)) , (b0 = b = θ0)
+θ1 = θ1 - a * (1/m) * ∑(h0(x^(i)) - y^(i)).x^(i) , (b1 = w = θ1)
+
+Günün sonunda regresyon problemlerini çözmek için kullanacağımız modeller ağacı dayalı modeller olacaktır. Doğrusal regresyon modelleri olmayacaktır.
+
+
+
