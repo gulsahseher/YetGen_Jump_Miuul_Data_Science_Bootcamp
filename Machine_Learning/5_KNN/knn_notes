@@ -1,0 +1,42 @@
+K-EN YAKIN KOMŞU (K-NEAREST NEIGHBORS)
+
+Gözlemlerin birbirine olan benzerlikleri üzerinden tahmin yapılır.
+
+1. K-Yakın Komşu Regresyon (K-Nearest Neighbors Regression)
+
+Soru: X1 = 50, X2= 230 ise Y tahmini nedir?
+
+     Y          X1          X2
+    100         56          241
+    120         85          250
+    150         25          233
+    .            .           .
+    .            .           .
+    140         56          231
+
+Öklid ya da benzeri bir uzaklık hesabı ile her bir gözleme uzaklık hesaplanır. En yakın 5 tane gözlem birimi seçilir.
+
+• √(X1' - X1)^2 + (X2' - X2)^2 = √(50-56)^2 + (230-241)^2 = 12.53
+• √(X1' - X1)^2 + (X2' - X2)^2 = √(50-85)^2 + (230-250)^2 = 40.31
+• √(X1' - X1)^2 + (X2' - X2)^2 = √(50-25)^2 + (230-233)^2 = 25.17
+.
+.
+• √(X1' - X1)^2 + (X2' - X2)^2 = √(50-56)^2 + (230-231)^2 = 6.08
+
+Bulduğumuz sonuçlardan X1 = 50, X2= 230 'a en yakın gözlem birimlerini alarak bu gözlem birimlerinin ortalamasını bulalım.
+
+(12.53 + 25.17 + 6.08) / 3 = 14.59
+
+1. K-Yakın Komşu Sınıflandırma (K-Nearest Neighbors Classification)
+
+En yakın K adet gözlemin y değerlerinin en sık frekansı tahmin edilen sınıf olur.
+
+Soru: X1 = 50, X2= 230 ise Y tahmini nedir?
+
+     Y          X1          X2
+     1          56          241
+     0          85          250
+     .           .           .
+     .           .           .
+     0          56          231
+

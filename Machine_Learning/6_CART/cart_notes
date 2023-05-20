@@ -1,0 +1,88 @@
+CART (Classification and Regression Tree)
+
+Amaç veri seti içerisindeki karmaşık yapıları basit karar yapılarına dönüştürmektir.
+Heterojen veri setleri belirlenmiş bir hedef değişkene göre homojen alt gruplara ayrılır.
+
+1. Regresyon Problemi Karar Ağacı Yapısı
+
+                    Deneyim yılı < 4.5
+                           |
+                           |
+               ____________|____________
+              |                         |
+              |                         |Atış sayısı < 117.5
+              |                _________|_________
+             5.11             |                   |
+                              |                   |
+                              |                   |
+                             6.00                6.74
+
+Bu karar ağacı yapısına göre deneyim yılı 4.5'tan küçükse maaşı 5.11, büyük veya eşitse de atış sayısına bakılır.
+Atış sayısı 117.5'tan küçükse maaşı 6.00 büyük veya eşitse maaşı 6.74'tür diyebiliriz.
+
+Bağımsız değişkenleri bölen noktalara iç düğüm noktası denir.
+Örneği verilen karar ağacında 2 tane iç düğüm noktası(internal node),3 tane de son düğüm noktası(terminal node) bulunmaktadır.
+
+Heterojen Veri Setlerini Homojen Alt Gruplara Ayırma
+
+                            _______________________________________________
+                           |                          |                    |
+                           |                          |        1.3         |
+                       250_|                          |                    |
+                           |                          |____________________|
+                       200_|                          |                    |
+                           |                          |                    |
+    Predictor B        150_|           2.5            |                    |          if Predictor A >= 1.7 then
+                           |                          |                    |                if Predictor B >= 202.1 then Outcome = 1.3
+                       100_|                          |        5.6         |                else Outcome = 5.6
+                           |                          |                    |          else Outcome = 2.5
+                        50_|                          |                    |
+                           |                          |                    |
+                           |__________________________|____________________|
+                                   |       |       |       |       |
+                                  0.5     1.0     1.5     2.0     2.5
+                                              Predictor A
+
+Buradaki asıl amaç karar kurallarını belirlemektir. Bu karar kurallarına Chi-Square, Gini, SSE, Entropy gibi yöntemlerle karar verilmektedir.
+Karar kurallarına karar verildikten sonra bu işlemler python, excel, SQL gibi plartformlarda da çalıştırılabilir. Tahminlerde bulunulabilir.
+
+2. Regresyon Problemleri için Cost/Loss/Objective Fonksiyonu
+
+Ağaç RSS(SSE) değerinin minimum olduğu noktalardaki bölgelenme/yapraklanma/kutulanmalardır. Tahmin edilen değerler ilgili kutuların ortalama değerleridir.
+Amaç en optimum modeli bularak toplam hataları minimuma indirmektir.
+
+            J
+RSS (SSE) : ∑   ∑(yi - y'Rj)^2        Rj: bölge/yaprak/kutu
+           j=1 i∈Rj
+
+Karar ağacı yapıları genellenebilirliklerini kaybederek overfit etmeye müsait yapılardır.
+Bunun önüne geçebilmek için yapıların ne kadar dallanacağına ve derinleşeceğine, kaç gözlem içereceğine karar vermek gerekir.
+Bunun için max_depth ve min_samples_split değerlerine karar verilmesi gerekir.
+
+                               K
+•Gini katsayısı (coefficient): ∑ pmk*(1-pmk)  (sınıfların gerçekleşme olasılıklarını belirtir)
+                              k=1
+
+                                    K
+• Entropi katsayısı (coefficient):- ∑ pmk*log(pmk) (çeşitlilik belirtir)
+                                   k=1
+
+Ağırlıklı kayıp (the weighted loss): fL* L(CL) + fR * L(CR)
+
+Sınıflandırma problemleri için hataları değerlendirme imkanı sunar. Saflık ölçüleridir de diyebiliriz. Ne kadar düşükse o kadar iyidir.
+
+Örnek:
+                       Age <= 4.5
+                      gini = 0.496                        K
+                      samples = 11                        ∑ pmk*(1-pmk) =
+                      value = [5, 6]                     k=1
+                           |
+                           |                             •(5/11 * 6/11) + (6/11 * 5/11) = 30/122 + 30/122 = 0.496
+               ____________|____________                 •(2/8 * 6/8) + (6/8 * 2/8) = 12/64 + 12/64 = 0.375
+              |                         |                •(3/3 * 0) + 0 = 0
+        True  |                  False  |
+              |                         |                 WG = 8/11 * (0.375) + 3/11 * 0 = 0.27
+          Age <= 19.0               gini = 0
+          gini = 0.496             samples = 3
+          samples = 8             value = [3, 0]
+         value = [2, 6]
