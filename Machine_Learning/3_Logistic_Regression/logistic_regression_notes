@@ -1,0 +1,188 @@
+LOJİSTİK REGRESYON (LOGISTIC REGRESSION)
+
+Amaç sınıflandırma problemi için bağımlı ve bağımsız değişkenler arasındaki ilişkiyi doğrusal olarak modellemektir.
+
+yi' = 1 / (1+ e^-(z)) sigmoid fonksiyonu
+z = b + w1x1 + w2x2 + w3x3 + ... + wpxp
+
+Lojistik regresyon, gerçek değerler ile tahmin edilen değerler arasındaki farklara ilişkin log loss değerini minimum
+yapabilecek ağırlıkları bularak yerine getirilir.
+
+Log Loss = 1/m*(∑(-yi*log(p(yi')) - (1 - yi)*log(1 - p(yi')))) , i=(1,m)
+
+Sigmoid fonksiyonu sinir ağlarında sınıflandırmanın temelini oluşturmaktadır.
+
+Soru: Verilen bias ve weigth değerlerine göre aşağıdaki gözlem birimi için 1 sınıfına ait olma olasılığını hesaplayınız.
+
+b= 5, w1 = 4, w2 = -4, w3 = 3
+x1 = 2, x2 = 3, x3 = 0
+
+z = 5 + 4*2 + (-4)*3 + 3*0
+z = 1
+
+1 / (1 + e^(-z)) = 0.731 bulunur.
+
+- Lojistik Regresyon için Gradient Descent (Gradient Descent for Logistic Regression)
+
+J(θ) = (1/m) * ∑Cost(hθ(x^(i)), y^(i)) ,i=(1,m)
+
+hθ(x^(i) : 1 sınıfının gerçekleşmesi olasılığıdır.
+1 - hθ(x^(i)) : 0 sınıfının gerçekleşmesi olasılığır.
+
+Öyleyse Log Loss:
+J(θ) = (1/m)*[∑(-y^(i)*log(hθ(x^(i)) - (1 - y^(i))*log(1 - hθ(x^(i)))] , i=(1,m) cross-entropy formula
+
+Entropi ne kadar yüksekse çeşitlilik o kadar fazladır. Uygulamada gerçek değer ile tahmin edilen değer açısından entropinin düşük olması yani çeşitliliğin az olması istenir.
+
+θj ← θj - (a * ∂J(θ) / ∂θj )
+
+Yukarıdaki gibi parametrelerin güncellenmesi ile hatanın düşürülmesi hedeflenir.
+
+- Sınıflandırma Problemlerinde Başarı Değerlendirme
+
+Amaç modelin doğru sınıflandırma tahmini yapması olduğu için örneğin bir ikili sınıflandırma probleminde "1" sınıfı için "1" tahmininde
+"0" sınıfı için "0" tahmininde bulunup bulunmadığına bakılır ve bir doğruluk oranı hesaplanır. Bu doğruluk oranı "accuracy score" olarak adlandırılır.
+
+• Confussion Matrix
+
+Sınıflar için hangi tahmin sınıflarında bulunduğunu ve kaçının doğru olduğunu gözlemleyebileceğimiz matristir. Köşegen boyunca yapılmış tahminler doğru sınıflandırma sonuçlarını
+gösterir.
+Yine bir ikili sınıflandırma problemi için confussion matrix:
+
+                                      Tahmin Edilen Sınıf
+                            ___________________________________________
+                           |      Sınıf = 1      |      Sınıf = 0      |
+                ___________|_____________________|_____________________|
+               | Sınıf = 1 | True Pozitive (TP)  | False Negative (FN) |
+Gerçek Sınıf   |___________|_____________________|_____________________|
+               | Sınıf = 0 | False Positive (FP) | True Pozitive (TN)  |
+               |___________|_____________________|_____________________|
+
+True olan tahminler doğru sınıf tahminlerini temsil eder. False olan tahminler ise yanlış sınıf tahminlerini temsil eder.
+"1" sınıfı için "1" tahmini ve "0" sınıfı için "0" tahmini doğrudur. Ancak "1" sınıfı için "0" tahmini ve "0" sınıfı için "1" tahmini yanlıştır.
+
+1. Accuracy: Doğru sınıflandırma oranıdır. (TP + TN) / (TP + TN + FP+ FN)
+2. Precision: Pozitif sınıf (1) tahminlerinin başarı oranıdır. TP / (TP + FP)
+3. Recall: Pozitif sınıfın (1) doğru tahmin edilme oranıdır. TP / (TP + FN)
+4. F1 Score: Precision ve recall değerlerinin harmonik ortalamasıdır. 2 * (Precision * Recall) / (Precision + Recall)
+
+False Positive (FP) Tip 1 hatası , False Negative (FN) Tip 2 hatası olarak da adlandırılmaktadır.
+
+Soru : 1000 kredi kartı işlemi var. Bu işlemlerin 990 tanesi normal işlem, 10 tanesi sahtekar işlemdir.
+Buna göre confussion matrixi doldurunuz  ve başarı metriklerini hesaplayınız.
+
+                                                 Tahmin Edilen Sınıf
+                                     ___________________________________________
+                                    |   Fraud İşlem (1)   |   Normal İşlem (0)  |
+               _____________________|_____________________|_____________________|_______
+              |   Fraud İşlem (1)   |          5          |          5          |   10  |
+Gerçek Sınıf  |_____________________|_____________________|_____________________|_______|
+              |   Normal İşlem (0)  |         90          |         900         |  990  |
+              |_____________________|_____________________|_____________________|_______|
+                                    |         95          |         905         |
+                                    |_____________________|_____________________|
+
+1. Accuracy: (TP + TN) / (TP + TN + FP+ FN) = 905 / 1000 = 0.905
+2. Precision: TP / (TP + FP) = 5 / 95 = 0. 05
+3. Recall: TP / (TP + FN) = 0.5
+4. F1 Score: 2 * (Precision * Recall) / (Precision + Recall) = 2 * (0.05 * 0.5) / (0.05 + 0.5) = 2 * 0.025 / 0.55 = 0.09
+
+Bu sınıf modelinde accuracy değerine göre yüksek bir sonuç elde edilmiş olsa da precision ve recall değerlerine göre o kadar da başarılı bir model elde edilmediği görülmüştür.
+
+• Classification Threshold
+
+Modelin tahmin sonuçları eşik değerine göre uygun olan sınıfa atanır ve sınıflandırma sonuçları elde edilir. Bunun sonucunda metrikler hesaplanarak modelin
+başarısı ölçülür.
+
+Soru: Aşağıdaki tahmin sonuçlarını 0.5'e göre sınıflandırınız ve gerçek değerleri ile kıyaslayarak accuracy değerini bulunuz.
+
+  Churn                  Probability of Class 1        Predict Value
+    1                            0.80                        1         ✓
+    1                            0.48                        0
+    0                            0.30                        0         ✓
+    1                            0.45                        0
+    0                            0.55                        1
+    1                            0.70                        1         ✓
+    0                            0.42                        0         ✓
+    0                            0.35                        0         ✓
+    1                            0.60                        1         ✓
+    1                            0.70                        1         ✓
+
+Accuracy: 7 / 10 = 0.70 tir.
+
+Soru: Aşağıdaki tahmin sonuçlarını 0.75'e göre sınıflandırınız ve gerçek değerleri ile kıyaslayarak accuracy değerini bulunuz.
+
+  Churn                  Probability of Class 1        Predict Value
+    1                            0.80                        1         ✓
+    1                            0.48                        0
+    0                            0.30                        0         ✓
+    1                            0.45                        0
+    0                            0.55                        0         ✓
+    1                            0.70                        0
+    0                            0.42                        0         ✓
+    0                            0.35                        0         ✓
+    1                            0.60                        0
+    1                            0.70                        0
+
+Accuracy: 5 / 10 = 0.50 dir.
+
+Soru: Aşağıdaki tahmin sonuçlarını 0.4'a göre sınıflandırınız ve gerçek değerleri ile kıyaslayarak accuracy değerini bulunuz.
+
+  Churn                  Probability of Class 1        Predict Value
+    1                            0.80                        1         ✓
+    1                            0.48                        1         ✓
+    0                            0.30                        0         ✓
+    1                            0.45                        1         ✓
+    0                            0.55                        1
+    1                            0.70                        1         ✓
+    0                            0.42                        1
+    0                            0.35                        0         ✓
+    1                            0.60                        1         ✓
+    1                            0.70                        1         ✓
+
+Accuracy: 8 / 10 = 0.8 dir.
+
+Eşik değerlerinin değişmesine göre nihai tahmin değerleri değişmektedir.
+
+• ROC Curve (Receiver Operating Characteristic Curve)
+
+Bütün olası threshold değerlerin confussion matrixi çıkarılarak "True Positive Rate" ve "False Positive Rate" değerlerine göre eğriler çıkarılmasıdır.
+ROC eğrisi altında kalan alan AUC (Area Under Curve) olarak adlandrılır ve bu değer ROC eğrisinin tek bir sayısal değer ile ifade edilişidir.
+AUC, tüm olası sınıflandırma eşikleri için toplu bir performans ölçüsüdür.
+
+Bir sınıflandırma problemi için accuracy, precision-recall değerleri, f1-score, AUC metriklerine bakarak sınıflandırma başarısı yorumlanmaya çalışılır.
+
+• Log Loss
+
+Cross-entropy metriğidir. Entropi, çeşitliliktir. Yani entropi ne kadar yüksekse o kadar çeşitlilik vardır diyebiliriz. Yani bir ikili sınıflandırma örneğinde
+"1010" ve "1111" sınıflandırma yapıldğında "1010" sınıflandırmasının entropisi daha yüksektir diyebiliriz.
+Entropinin düşük olması tercih edilir.
+
+J(θ) = (1/m)*[∑(-y^(i)*log(hθ(x^(i)) + (1 - y^(i))*log(1 - hθ(x^(i)))] , i=(1,m)
+
+ Churn                  Probability of Class 1
+    1                            0.80
+    1                            0.48
+    0                            0.30
+    1                            0.45
+    0                            0.55
+    1                            0.70
+    0                            0.42
+    0                            0.35
+    1                            0.60
+    1                            0.70
+
+Örneğin bu örnek için Log Loss  formülünü uygularsak
+
+J(θ1)  = -y^(i)*log(hθ(x^(i)) - (1 - y^(i))*log(1 - hθ(x^(i)) = - 1 * log(0.8)       - (1-1)*log(1 - hθ(x^(i)) =  0.096 (1 sınıfının gerçekleşmesi olasılığı)
+J(θ2)  = -y^(i)*log(hθ(x^(i)) - (1 - y^(i))*log(1 - hθ(x^(i)) = - 1 * log(0.48)      - (1-1)*log(1 - hθ(x^(i)) =  0.318
+J(θ3)  = -y^(i)*log(hθ(x^(i)) - (1 - y^(i))*log(1 - hθ(x^(i)) = - 0 * log(hθ(x^(i))  - (1)*log(1 - 0.3)        =  0.15  (0 sınıfının gerçekleşmesi olasılığı)
+J(θ4)  = -y^(i)*log(hθ(x^(i)) - (1 - y^(i))*log(1 - hθ(x^(i)) = - 1 * log(0.45)      - (1-1)*log(1 - hθ(x^(i)) =  0.346
+J(θ5)  = -y^(i)*log(hθ(x^(i)) - (1 - y^(i))*log(1 - hθ(x^(i)) = - 0 * log(hθ(x^(i))  - (1)*log(1 - 0.55)       =  0.346
+J(θ6)  = -y^(i)*log(hθ(x^(i)) - (1 - y^(i))*log(1 - hθ(x^(i)) = - 0 * log(0.7)       - (1-1)*log(1 - hθ(x^(i)) =  0.15
+J(θ7)  = -y^(i)*log(hθ(x^(i)) - (1 - y^(i))*log(1 - hθ(x^(i)) = - 0 * log(hθ(x^(i))  - (1)*log(1 - 0.42)       =  0.236
+J(θ8)  = -y^(i)*log(hθ(x^(i)) - (1 - y^(i))*log(1 - hθ(x^(i)) = - 0 * log(hθ(x^(i))  - (1)*log(1 - 0.35)       =  0.18
+J(θ9)  = -y^(i)*log(hθ(x^(i)) - (1 - y^(i))*log(1 - hθ(x^(i)) = - 1 * log(0.6)       - (1-1)*log(1 - hθ(x^(i)) =  0.2218
+J(θ10) = -y^(i)*log(hθ(x^(i)) - (1 - y^(i))*log(1 - hθ(x^(i)) = - 1 * log(0.7)       - (1-1)*log(1 - hθ(x^(i)) =  0.154
+
+J(θ) = (1/m)*[∑(-y^(i)*log(hθ(x^(i)) + (1 - y^(i))*log(1 - hθ(x^(i)))] , i=(1,m) = (1/10)* (2.1978) = 0.21978 bulunur.
