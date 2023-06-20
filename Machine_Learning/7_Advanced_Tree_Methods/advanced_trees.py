@@ -1,0 +1,361 @@
+# #####################################################
+# Random Forests, GBM, XGBoost, LightGBM, CatBoost
+# #####################################################
+
+import warnings
+import numpy as np
+import pandas as pd
+import seaborn as sns
+from matplotlib import pyplot as plt
+from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier, VotingClassifier
+from sklearn.metrics import classification_report, roc_auc_score
+from sklearn.model_selection import RandomizedSearchCV, GridSearchCV, cross_validate, validation_curve
+
+from xgboost import XGBClassifier
+from lightgbm import LGBMClassifier
+from catboost import CatBoostClassifier
+
+pd.set_option("display.max_columns", None)
+pd.set_option("display.max_rows", None)
+pd.set_option("display.float_format", lambda x: "%.3f" % x)
+pd.set_option("display.width", 500)
+warnings.simplefilter(action="ignore", category=Warning)
+
+df = pd.read_csv("C:/Users/GULSAH/Documents/PycharmProjects/Machine_Learning/7_Advanced_Tree_Methods/datasets/diabetes.csv")
+
+y = df["Outcome"]
+X = df.drop(["Outcome"], axis=1)
+
+# #####################################################
+# Random Forests
+# #####################################################
+
+rf_model = RandomForestClassifier(random_state=17)
+
+rf_model.get_params() # ön tanımlı parametreler
+
+cv_results = cross_validate(rf_model, X, y, cv=10, scoring=["accuracy", "f1", "roc_auc"])
+cv_results["test_accuracy"].mean() # 0.753896103896104
+cv_results["test_f1"].mean() # 0.6190701534636385
+cv_results["test_roc_auc"].mean() # 0.8233960113960114
+
+# Bütün hiperparametrelerin ön tanımlı değerlerin yer alması gerekir. Yer almazsa GridSearchCV methodundan sonra modelde iyileşme gözlemlenmeyebilir.
+
+rf_params = {"max_depth": [5, 8, None], # derinlik
+             "max_features": [3, 5, 7, "auto"], # bölünmelerde göz önünde bulundurulması gereken değişken sayısı
+             "min_samples_split": [2, 5, 8, 15, 20], # bir düğümün dallanmaya maruz bırakılıp bırakılmayacağına karar vermek için kaç tane gözlem birimi olması gerektiğini ifade eder
+             "n_estimators": [100, 200, 500] # birbirinden bağımsız kurulacak olan fit edilecek olan ağaç sayısıdır
+             }
+
+rf_best_grid = GridSearchCV(rf_model, rf_params, cv=5, n_jobs=-1, verbose=True).fit(X, y)
+
+rf_best_grid.best_params_
+
+rf_final = rf_model.set_params(**rf_best_grid.best_params_, random_state=17).fit(X, y)
+
+cv_results = cross_validate(rf_final, X, y, cv=10, scoring=["accuracy", "f1", "roc_auc"])
+cv_results["test_accuracy"].mean() # 0.766848940533151
+cv_results["test_f1"].mean() # 0.6447777811143756
+cv_results["test_roc_auc"].mean() # 0.8271054131054132
+
+def plot_importance(model, features, num=len(X), save=False):
+    feature_imp = pd.DataFrame({"Value":model.feature_importances_, "Feature": features.columns})
+    plt.figure(figsize=(10,10))
+    sns.set(font_scale=1)
+    sns.barplot(x="Value", y="Feature", data=feature_imp.sort_values(by="Value", ascending=False)[0:num])
+
+    plt.title("Features")
+    plt.tight_layout()
+    plt.show()
+    if save:
+        plt.savefig("importance.png")
+
+plot_importance(rf_final, X, save=True)
+
+def val_curve_params(model, X, y, param_name, param_range, scoring="roc_auc", cv=10):
+    train_score, test_score = validation_curve(
+        model, X=X, y=y, param_name=param_name, param_range=param_range, scoring=scoring, cv=cv)
+
+    mean_train_score = np.mean(train_score, axis=1)
+    mean_test_score = np.mean(test_score, axis=1)
+
+    plt.plot(param_range, mean_train_score,
+             label="Training Score", color="b")
+
+    plt.plot(param_range, mean_test_score,
+             label="Validation Score", color="g")
+
+    plt.title(f"Validation Curve for {type(model).__name__}")
+    plt.xlabel(f"Number of {param_name}")
+    plt.ylabel(f"{scoring}")
+    plt.tight_layout()
+    plt.legend()
+    plt.show(block=True)
+
+val_curve_params(rf_final, X, y, param_name="max_depth", param_range=range(1, 11))
+
+
+# #####################################################
+# Gradient Boosting Machines (GBM)
+# #####################################################
+
+gbm_model = GradientBoostingClassifier(random_state=17)
+
+gbm_model.get_params()
+
+cv_results = cross_validate(gbm_model, X, y, cv=5, scoring=["accuracy", "f1", "roc_auc"])
+cv_results["test_accuracy"].mean() # 0.7591715474068416
+cv_results["test_f1"].mean() # 0.634235802826363
+cv_results["test_roc_auc"].mean() # 0.8254867225716283
+
+gbm_params = {"learning_rate": [0.01, 0.1],
+                  "max_depth": [3, 8, 10],
+               "n_estimators": [100, 500, 1000],
+                  "subsample": [1, 0.5, 0.7] # Base learner fit edileceği zaman kaç tane gözlemin oransal olarak göz önünde bulundurulacağını ifade eder.
+              }
+
+gbm_best_grid = GridSearchCV(gbm_model, gbm_params, cv=5, n_jobs=-1, verbose=True).fit(X,y)
+
+gbm_best_grid.best_params_
+
+gbm_final = gbm_model.set_params(**gbm_best_grid.best_params_, random_state=17).fit(X,y)
+
+cv_results = cross_validate(gbm_final, X, y, cv=5, scoring=["accuracy", "f1", "roc_auc"])
+cv_results["test_accuracy"].mean() # 0.7800186741363212
+cv_results["test_f1"].mean() # 0.668605747317776
+cv_results["test_roc_auc"].mean() # 0.8386261355695318
+
+# #####################################################
+# eXtreme Gradient Boosting (XGBoost)
+# #####################################################
+
+xgboost_model = XGBClassifier(random_state=17)
+
+xgboost_model.get_params()
+
+cv_results = cross_validate(xgboost_model, X, y, cv=5, scoring=["accuracy", "f1", "roc_auc"])
+cv_results["test_accuracy"].mean() # 0.7526525761819879
+cv_results["test_f1"].mean() # 0.6317893713482235
+cv_results["test_roc_auc"].mean() # 0.7987134870719776
+
+xgboost_params = {"learning_rate": [0.1, 0.01],
+                  "max_depth": [5, 8, None],
+                  "n_estimators": [100, 500, 1000],
+                  "colsample_bytree": [None, 0.7, 1] # Base learner fit edileceği zaman kaç tane gözlemin oransal olarak göz önünde bulundurulacağını ifade eder.
+              }
+
+xgboost_best_grid = GridSearchCV(xgboost_model, xgboost_params, cv=5, n_jobs=-1, verbose=True).fit(X,y)
+
+xgboost_best_grid.best_params_
+
+xgboost_final = xgboost_model.set_params(**xgboost_best_grid.best_params_, random_state=17).fit(X,y)
+
+cv_results = cross_validate(xgboost_final, X, y, cv=5, scoring=["accuracy", "f1", "roc_auc"])
+cv_results["test_accuracy"].mean() # 0.7578643578643579
+cv_results["test_f1"].mean() # 0.6297649135382188
+cv_results["test_roc_auc"].mean() # 0.8145597484276731
+
+# #####################################################
+# LightGBM
+# #####################################################
+
+lgbm_model = LGBMClassifier(random_state=17)
+
+lgbm_model.get_params()
+
+cv_results = cross_validate(lgbm_model, X, y, cv=5, scoring=["accuracy", "f1", "roc_auc"])
+cv_results["test_accuracy"].mean() # 0.7474492827434004
+cv_results["test_f1"].mean() # 0.624110522144179
+cv_results["test_roc_auc"].mean() # 0.7990293501048218
+
+lgbm_params = {"learning_rate": [0.01, 0.1],
+                  "n_estimators": [100, 300, 500, 1000],
+                  "colsample_bytree": [0.5, 0.7, 1]}
+
+lgbm_best_grid = GridSearchCV(lgbm_model, lgbm_params, cv=5, n_jobs=-1, verbose=True).fit(X,y)
+
+lgbm_best_grid.best_params_
+
+lgbm_final = lgbm_model.set_params(**lgbm_best_grid.best_params_, random_state=17).fit(X,y)
+
+cv_results = cross_validate(lgbm_final, X, y, cv=5, scoring=["accuracy", "f1", "roc_auc"])
+cv_results["test_accuracy"].mean() # 0.7643578643578645
+cv_results["test_f1"].mean() # 0.6372062920577772
+cv_results["test_roc_auc"].mean() # 0.8147491264849755
+
+# Aynı model için başka bir hiper-parametre seti deneyelim.
+
+lgbm_params = {"learning_rate": [0.01, 0.02, 0.05, 0.1],
+                  "n_estimators": [200, 300, 350, 400],
+                  "colsample_bytree": [0.8, 0.9, 1]}
+
+lgbm_best_grid = GridSearchCV(lgbm_model, lgbm_params, cv=5, n_jobs=-1, verbose=True).fit(X,y)
+
+lgbm_best_grid.best_params_
+
+lgbm_final = lgbm_model.set_params(**lgbm_best_grid.best_params_, random_state=17).fit(X,y)
+
+cv_results = cross_validate(lgbm_final, X, y, cv=5, scoring=["accuracy", "f1", "roc_auc"])
+cv_results["test_accuracy"].mean() # 0.7643833290892115
+cv_results["test_f1"].mean() # 0.6193071162618689
+cv_results["test_roc_auc"].mean() # 0.8227931516422082
+
+# LightGBM'de temel olarak diğer hiperparametreler belirlendikten sonra tahminci sayısı (n-estimators) 10000'lere kadar denenmelidir.
+
+# Hiper parametre optimizasyonunu sadece n_estimators değeri için deneyelim. LightGBM'in en önemli hiper parametresi tahmin sayısıdır.
+
+lgbm_model = LGBMClassifier(random_state=17, colsample_bytree= 0.9, learning_rate= 0.01) # Bir önceki modelde belirlenmiş olan colsample_bytree ve learning_rate değerleri sabitlendi.
+
+lgbm_params = {"n_estimators": [200, 400, 1000, 5000, 8000, 9000, 10000]}
+
+lgbm_best_grid = GridSearchCV(lgbm_model, lgbm_params, cv=5, n_jobs=-1, verbose=True).fit(X,y)
+
+lgbm_best_grid.best_params_
+
+lgbm_final = lgbm_model.set_params(**lgbm_best_grid.best_params_, random_state=17).fit(X,y)
+
+cv_results = cross_validate(lgbm_final, X, y, cv=5, scoring=["accuracy", "f1", "roc_auc"])
+cv_results["test_accuracy"].mean() # 0.7643833290892115
+cv_results["test_f1"].mean() # 0.6193071162618689
+cv_results["test_roc_auc"].mean() # 0.8227931516422082
+
+# Veri setinde çok fazla gözlem olmadığı için bir önceki modelde bulunan n_estimators değeri ile aynı çıkmıştır.
+
+# #####################################################
+# CatBoost
+# #####################################################
+
+catboost_model = CatBoostClassifier(random_state=17, verbose=False)
+
+cv_results = cross_validate(catboost_model, X, y, cv=5, scoring=["accuracy", "f1", "roc_auc"])
+cv_results["test_accuracy"].mean() # 0.7735251676428148
+cv_results["test_f1"].mean() # 0.6502723851348231
+cv_results["test_roc_auc"].mean() # 0.8378923829489867
+
+catboost_params = {"learning_rate": [0.01, 0.1],
+                      "iterations": [200, 500],
+                           "depth": [3, 6]}
+
+catboost_best_grid = GridSearchCV(catboost_model, catboost_params, cv=5, n_jobs=-1, verbose=True).fit(X,y)
+
+catboost_best_grid.best_params_
+
+catboost_final = catboost_model.set_params(**catboost_best_grid.best_params_, random_state=17).fit(X,y)
+
+cv_results = cross_validate(catboost_final, X, y, cv=5, scoring=["accuracy", "f1", "roc_auc"])
+cv_results["test_accuracy"].mean() # 0.7721755368814192
+cv_results["test_f1"].mean() # 0.6322580676028952
+cv_results["test_roc_auc"].mean() # 0.842001397624039
+
+# #####################################################
+# Feature Importance
+# #####################################################
+
+def plot_importance(model, features, num=len(X), save=False):
+    feature_imp = pd.DataFrame({"Value":model.feature_importances_, "Feature": features.columns})
+
+    plt.figure(figsize=(10,10))
+    sns.set(font_scale=1)
+    sns.barplot(x="Value", y="Feature", data=feature_imp.sort_values(by="Value", ascending=False)[0:50])
+
+    plt.title("Features")
+    plt.tight_layout()
+    plt.show()
+    if save:
+        plt.savefig("importance.png")
+
+plot_importance(rf_final, X)
+plot_importance(gbm_final, X)
+plot_importance(xgboost_final, X)
+plot_importance(lgbm_final, X)
+plot_importance(catboost_final, X)
+
+# #####################################################
+# Hyperparameter Optimization with RandomSearchCV (BONUS)
+# #####################################################
+
+# Verilecek olan bir hiper parametre seti içerisinden rastgele seçimler yapar ve bu rastgele seçimleri arar.
+# Önce çok geniş hiperparametre seti ile RandomSearchCV üzerinde bir arama yapılıp daha sonra bulunan optimum
+# sonuçlara göre hiper parametrelerin etraflarında daha az sayıda yeni değerler koyularak GridSearchCV yönteminden geçirilebilir.
+
+rf_model = RandomForestClassifier(random_state=17)
+
+rf_random_params = {"max_depth": np.random.randint(5, 50, 10),
+                    "max_features": [3, 5, 7, "auto", "sqrt"],
+                    "min_samples_split": np.random.randint(2, 50, 20),
+                    "n_estimators": [int(x) for x in np.linspace(start=200, stop=1500, num=10)]}
+
+rf_random = RandomizedSearchCV(estimator=rf_model,
+                               param_distributions=rf_random_params,
+                               n_iter=100, # denenecek parametre sayısı
+                               cv=3,
+                               verbose=True,
+                               random_state=42,
+                               n_jobs=-1)
+
+rf_random.fit(X, y)
+
+rf_random.best_params_
+
+
+rf_random_final = rf_model.set_params(**rf_random.best_params_, random_state=17).fit(X,y)
+
+cv_results = cross_validate(rf_random_final, X, y, cv=5, scoring=["accuracy", "f1", "roc_auc"])
+
+cv_results["test_accuracy"].mean() # 0.7696120872591461
+cv_results["test_f1"].mean() # 0.6349765689355348
+cv_results["test_roc_auc"].mean() # 0.8361747030048916
+
+# Hiper parametre setini RandomSearchCV etrafında çıkan sonuçlara GridSearchCV ile tekrardan optimize etmek
+
+rf_grid_params = {'n_estimators': [180, 190, 200, 220, 240, 300],
+                  'min_samples_split': [18, 19, 20, 21, 22, 23, 24],
+                  'max_features': [3, 5, 7,'auto'],
+                  'max_depth': [16, 17, 18, 19, 20, 21, 22]}
+
+rf_best_grid = GridSearchCV(rf_model, rf_grid_params, cv=5, n_jobs=-1, verbose=True).fit(X, y)
+
+rf_best_grid.best_params_
+
+rf_final = rf_model.set_params(**rf_best_grid.best_params_, random_state=17).fit(X, y)
+
+cv_results = cross_validate(rf_final, X, y, cv=10, scoring=["accuracy", "f1", "roc_auc"])
+cv_results["test_accuracy"].mean() # 0.768215994531784
+cv_results["test_f1"].mean() # 0.6447777811143756
+cv_results["test_roc_auc"].mean() # 0.8328461538461539
+
+# #####################################################
+# Analyzing Model Complexity with Learning Curves (BONUS)
+# #####################################################
+
+def val_curve_params(model, X, y, param_name, param_range, scoring="roc_auc", cv=10):
+    train_score, test_score = validation_curve(
+        model, X=X, y=y, param_name=param_name, param_range=param_range, scoring=scoring, cv=cv)
+
+    mean_train_score = np.mean(train_score, axis=1)
+    mean_test_score = np.mean(test_score, axis=1)
+
+    plt.plot(param_range, mean_train_score,
+             label="Training Score", color="b")
+
+    plt.plot(param_range, mean_test_score,
+             label="Validation Score", color="g")
+
+    plt.title(f"Validation Curve for {type(model).__name__}")
+    plt.xlabel(f"Number of {param_name}")
+    plt.ylabel(f"{scoring}")
+    plt.tight_layout()
+    plt.legend()
+    plt.show(block=True)
+
+rf_val_params = [['n_estimators', [10, 50, 100, 200, 500]],
+                 ['min_samples_split', [2, 5, 8, 15, 20]],
+                 ['max_features', [3, 5, 7,'auto']],
+                 ['max_depth', [5, 8, 15, 20, 30, None]]]
+
+rf_model = RandomForestClassifier(random_state=17)
+
+for i in range(len(rf_val_params)):
+    val_curve_params(rf_model, X, y, rf_val_params[i][0], rf_val_params[i][1])
+
+rf_val_params[0][1]

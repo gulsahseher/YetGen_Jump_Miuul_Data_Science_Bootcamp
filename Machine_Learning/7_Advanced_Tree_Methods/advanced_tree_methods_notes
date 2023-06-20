@@ -1,0 +1,140 @@
+GELİŞMİŞ AĞAÇ YÖNTEMLERİ
+
+1. Rastgele Ormanlar (Random Forests)
+
+Temeli birden çok karar ağacının ürettiği tahminlerin bir araya getirilerek değerlendirilmesine dayanır.
+
+• Bagging (Breiman, 1996) ile Random Subspace (Ho, 1998) yöntemlerinin birleşimi ile oluşturulmuştur.
+• Ağaçlar için gözlemler bootstrap rastgele örnek seçim yöntemi ile değişkenler random subspace yöntemi ile seçilir.
+• Karar ağacının her bir düğümünde en iyi dallara ayırı (bilgi kazancı) değişken tüm değişkenler arasından rastgele seçilen daha az sayıdaki değişken arasından seçilir.
+• Ağaç oluşturmada veri setinin 2/3'ü kullanılır. Dışarıda kalan veri ağaçların performans değerlendirmesi ve değişken öneminin belirlenmesi için kullanılır.
+• Her düğüm noktasında rastgele değişken seçimi yapılır. (regresyonda p/3, sınıflandırmada karekök p)
+
+Tek bir CART algoritmasının çoğaltılmasıyla yani birden çok ağaç yapısının oluşturulmasıyla gözlem seçimlerinde yakalanan rassallık (Bagging Yöntemi) ve değişkenlerde yakalanan rassallığın (Random Subspace)
+performansı arttırmasından dolayı random forests yönteminin elde edildiğini söyleyebiliriz.
+
+Bagging Yöntemi: Herhangi bir tekli ağacı bootstrap örnekleme yöntemi ile tekrar tekrar oluşturup rassallık kazandırarak tahminlerde bulunmaktır.
+Örneğin 1000 gözlemlik bir verisetinden rastgele 750 tane gözlem seçilmiş olsun. Bu gözlemler ile bir tane model yani ağaç yapısı kurulur. Daha sonra başka 750 gözlemlik birimler oluşturulur ve başka modeller kurulur.
+Bu şekilde yerine koyarak gözlem sayısından daha az gözlem ile ağaçlar fit edilir, yeni modeller oluşturulur. Yani p adet karar ağacının modelinin ürettiği t adet tahmin değeri biraraya getirilerek değerlendirilir.
+Burada oluşturulan ağaçlar ile önceden oluşturulmuş ağaçlar arasında herhangi bir bağlantı yoktur. Ağaçlar birbirinden bağımsızdır. Ezberlemeye karşı dayanıklı yöntemlerdir.
+
+Random Subspace: Bagging yöntemi ile oluşturulan ağaçlarda kullanılacak olan belli miktarda rastgele seçilmiş olan farklı değişkenlerin belirlenmesi işidir.
+Örneğin 750 gözlem birimiyle oluşturulacak olan ağaç yapısı için 100 tane örneklemden 20 tanesinin kullanılarak dallanmaların belirlenmesi ve ağaç yapısının oluşturulmasıdır. Bu işlemler bütün ağaçlar için tekrar edilir.
+
+Değişken ve gözlem biriminde seçilen rastgelelik ve kısıtlar ile veriseti içerisindeki farklı gözlemleri açıklayabilecek farklı değişken örüntüleri, ilişkileri modellenme imkanı buluyor. Böylece aşırı öğrenme, ezberlemenin
+önüne geçilmiş ve ezbere daha dayanıklı hale getirilmiş oluyor.
+
+2. Gradient Boosting Machines (GBM)
+
+GBM, artık optimizasyonuna dayalı çalışan bir ağaç yöntemlerine boosting yöntemi ve gradient descentin uygulanmasıdır. (GBM = Boosting + Gradient Descent)
+Temelleri AdaBoost'a dayanır.
+
+AdaBoost (Adaptive Boosting): Zayıf sınıflandırıcıların bir araya gelerek güçlü bir sınıflandırıcı oluşturması fikrine dayanır. (Schapires ve Freund 1996-1999)
+
+GBM yönteminde AdaBoost genelleştirilmiştir. Boosting yöntemleri bir optimizasyon problemi olarak ele alınmıştır. Yani boosting yöntemi uygun bir cost fonksiyonu üzerinde çalıştırılabilen bir optimizasyon problemi olarak ele alınmıştır.
+Eğer türevelenibilir bir cost fonksiyonu varsa bu gradient descent ile optimize edilebilir yorumu yapılabilir. İteratif olarak hataları azaltacak şekilde ağaç optimizasyonu yapılabilir. Kısacası hatalar/artıklar üzerine tek bir tahminsel
+model formunda olan modeller serisi kurulur.
+
+• Gradient boosting tek bir tahminsel model formunda olan modeller serisi oluşturur.
+• Ağaçlar için gözlemler bootstrap rastgele örnek seçim yöntemi ile değişkenler random subspace yöntemi ile seçilir.
+• Seri içerisindeki bir model serideki bir önceki modelin tahmin artıklarının/hatalarının (residuals) üzerine kurularak (fit) oluşturulur.
+• GBM diferansiyellenebilen herhangi bir kayıp fonksiyonunu optimize edebilen Gradient descent algoritmasını kullanmaktadır.
+• Tek bir tahminsel model formunda olan modeller serisi additive şekilde kurulur.
+
+Additive Modelleme: Tahmin sonucuna bir şeyler ekleyerek veya çıkararak optimum sonuçlara gidilmeye çalışılmaktadır. Hedef artıkları modellemektedir.
+Örneğin, y=30 fonksiyonu x'ten etkilenmemektedir. Bu fonksiyonun x'ten etkilenmesi için y=30+x haline getirilebilir. y=30+x+sin(x) ise x'ten daha hassas bir şekilde etkilenmektedir.
+Amaç artıkların(hataların) modellenerek ve eski tahmin sonucuna bu modellerden gelen değerleri ekleyerek veya çıkararak gerçek değerlere yaklaşılmaya çalışılır.
+
+y'    = f0(x) + Δ1(x) + Δ2(x) + ... + ΔM(x)
+                 M
+      = f0(x) +  ∑ Δm(x)
+                m=1
+      = FM(x)
+
+F0(x) = f0(x) (base learner)
+FM(x) = Fm-1(x) + Δm(x)
+
+Örnek:
+
+sqfeet      rent        F0      y-F0
+--------------------------------------
+750         1160       1418     -258
+800         1200       1418     -218            y  = Gerçek değer
+850         1280       1418     -138            F0 = Tahmin edilen değer
+900         1450       1418       32
+950         2000       1418      582
+
+                    ______________________________________
+                   |                                   .  |
+              2000_|                                   ↑  |
+                   |                                   |  |
+              1750_|                                   |  |
+    Rent (y)       |                                   |  |
+              1500_|             f0(x)         .       |  |
+              1418 |---|-------|-------↓-------↑-------|--|
+              1250_|   |       ↓       .                  |
+                   |   ↓       .                          |
+                   |___.__________________________________|
+                       |       |       |       |       |
+                      750     800     850     900     950
+                                   SqFeet (x)
+
+
+Sabit değerli F0'a eklemeler yapılarak biçimlendirilmesi gerekir.
+
+
+sqfeet      rent        F0      y-F0       Δ1      F1        y-F1       Δ2      F2      y-F2      Δ3      F3
+--------------------------------------  --------------------------------------------------------------------------------
+750         1160       1418     -258     -145.5   1272.5    -112.5    -92.5    1180      -20     15.4   1195.4
+800         1200       1418     -218     -145.5   1272.5     -72.5    -92.5    1180       20     15.4   1195.4
+850         1280       1418     -138     -145.5   1272.5       7.5     61.7  1334.2    -54.2     15.4   1349.6
+900         1450       1418       32     -145.5   1272.5     177.5     61.7  1334.2    115.8     15.4   1349.6
+950         2000       1418      582        582     2000         0     61.7  2061.7    -61.7    -61.7     2000
+
+Bağımlı değişkenin değerinden (gerçek değer) yani sabit değerden (bayes) tahmin edilen değer çıkarılarak learning rate ile çarpılır. Böylece gerçek değerin (sabit değer) değeri değiştirilir.
+                    _____________________________
+               600_|                       __.___|
+                   |                      |      |
+               400_|                      |      |
+                   |                      |      |
+               200_|                      |      |
+    y-y'           |                      |      |
+                 0_|--------------------.--|------|
+                   |_____________.________|      |
+              -200_|                             |
+                   |       .                     |
+                   |_.___________________________|
+                           |            |
+                          800          900                 İki grafik incelendiğinde artıkların optimize edilerek küçültüldüğü görülmektedir.
+                              SqFeet (x)                   Bunun sebebi de başarılı tahminler yapılmasıdır.
+                                                           Artıklar iteratif bir şekilde modellenerek tahmin başarısı arttırılmıştır.
+                    _____________________________
+               600_|                             |
+                   |                             |
+               400_|                             |
+                   |                             |
+               200_|                    .        |
+    y-y'           |           __________________|
+                 0_|----------|---.------------.-|
+                   |_______.__|                  |
+              -200_|  .                          |
+                   |                             |
+                   |_____________________________|
+                           |            |
+                          800          900
+                              SqFeet (x)
+
+3. eXtreme Gradient Boosting (XGBoost)
+
+XGBoost, GBM'in hız ve tahmin performansını arttırmak üzere optimize edilmiş; ölçeklenebilir ve farklı platformlara entegre edilebilir versiyonudur (Tianqi Chen 2014).
+R, Python, Hadoop, Scala, Julia gibi birçok farklı dille kullanılabilirdir.
+
+4. LightGBM
+
+LightGBM, XGBoost'un eğitim süresi performansını arttırmaya yönelik geliştirilen bir diğer GBM türüdür (Microsoft, 2017). Level-wise (seviyeye göre) büyüme stretejisi yerine Leaf-wise (bölme noktaları)
+büyüme stratejisi ile daha hızlıdır. Ağaç yapılarındaki bölme işlemleri düşünüldüğünde XGBoost geniş kapsamlı bir ilk arama yaparken LightGBM derinlemesine bir ilk arama yapmaktadır.
+
+5. Categorical Boosting (CatBoost)
+
+CatBoost, kategorik değişkenler ile otomatik olarak mücadele edebilen, hızlı, başarılı bir diğer GBM türevidir (Yandex, 2017).
+Kategorik değişken desteği ile bir boosting yöntemi olarak iş görür. GPU desteği vardır.
