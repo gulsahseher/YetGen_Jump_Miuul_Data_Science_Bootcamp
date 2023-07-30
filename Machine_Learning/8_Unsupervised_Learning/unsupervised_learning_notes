@@ -1,0 +1,45 @@
+DENETİMSİZ ÖĞRENME (UNSUPERVISED LEARNING)
+
+İlgili gözlem birimlerimden meydana gelen gözlemlere karşılık ortaya ne çıktığı bilgisi yoksa yani hedef değişken, label yoksa gözetimsiz
+öğrenme problemidir.
+
+1. K-Ortalamalar (K-Means)
+2. Hiyerarşik Kümeleme Analizi (Hierarchical Cluster Analysis)
+3. Temel Bileşen Analizi (Principal Component Analysis)
+
+1. K-Ortalamalar (K-Means)
+
+Amaç gözlemleri birbirine olan benzerliklerine göre kümelere ayırmaktır.
+
+Adım 1: Küme sayısı belirlenir.
+Adım 2: Rastgele k adet merkez seçilir.
+Adım 3: Her gözlem için k merkezlere uzaklıklar hesaplanır.
+Adım 4: Her gözlem en yakın olduğu merkeze yani kümeye atanır.
+Adım 5: Atama işlemlerinden sonra oluşan kümeler için tekrar merkez hesaplamaları yapılır.
+Adım 6: Bu işlem belirlenen iterasyon adedince tekrar edilir ve küme içi hata kareler
+toplamlarının toplamının (total within-cluster variation (SSE, SSR)) minimum olduğu durumdaki gözlemlerin
+kümelenme yapısı nihai kümelenme olarak seçilir.
+
+2. Hiyerarşik Kümeleme Analizi (Hierarchical Cluster Analysis)
+
+Amaç gözlemleri birbirine olan benzerliklerine göre alt kümelere ayırmaktır. Bu yöntem aşağı veya yukarıya doğru gözlem
+birimlerini kümelere sokmaya dayanmaktadır.
+
+• Agglomerative (Birleştirici) : Çalışmanın başında tüm gözlem birimleri bir küme gibi düşünülüp yukarıya doğru iki veya
+üç gözlem birimi bir kümeyi oluşturur. İki ve üç gözlemden oluşan gözlem birimi bir araya gelerek başka bir küme oluşturur.
+Böylece yukarıya doğru birleştirilerek işlemler yapılır.
+
+• Divisive (Bölümleyici) : Tüm gözlemler bir arada olduğunda aşağı doğru her bir gözlem tek başına kalacak şekilde bölünerek
+gider.
+
+Bu yöntemde K-Means'ten farklı olarak çeşitli kümelenme seviyelerinde yeni kümeler tanımlanabilmektedir.
+
+3. Temel Bileşen Analizi (Principal Component Analysis)
+
+Temel fikir, çok değişkenli verinin ana özelliklerini daha az sayıda değişken/bileşen ile temsil etmektir.
+Diğer bir ifade ile küçük miktarda bir bilgi kaybını göze alıp değişken boyutunu azaltmaktır. oluşacak veri kaybı görece
+gürültü ile kıyaslanabilir derece olmalıdır. Görüntü işleme, regresyon, bazı varsayım problemlerinde kullanılmaktadır.
+Temel bileşen analizi, verisetini bağımsız değişkenlerin doğrusal kombinasyonları ile ifade edilen bileşenlere indirger.
+Bileşenler arasında doğrusal korelasyon yoktur. Bunu da değişken gruplarının varyanslarını ifade eden özdeğerler ve verisetindeki
+değişkenleri gruplandırır. Gruplar arasındaki en fazla varyansa sahip olan gruplar en önemli gruplardır. Kısacası varyansa ve
+özdeğerlere dayalı bir gruplama yapılmaktadır.
